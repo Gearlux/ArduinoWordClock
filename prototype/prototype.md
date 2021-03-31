@@ -23,7 +23,7 @@ Here are some design decisions:
 
 I will probably ditch the temperature sensor, because it's a clock not a thermometer, and I will try to reduce the number of buttons to 3 while keeping the user interface intuitive.
 
-I recreated all tutorials in the [Arduino IDE](https://www.arduino.cc/en/software). Since I missed code completion, I will be looking into something better for the [user interface design](user_interface/userinterface.md).
+I recreated all tutorials in the [Arduino IDE](https://www.arduino.cc/en/software). Since I missed code completion, I will be looking into something better for the [user interface design](../user_interface/userinterface.md).
 
 The images look quite impressive (my opinion)
 
