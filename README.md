@@ -27,5 +27,6 @@ The journey of the word clock can begin ...
 
 - [Tutorials combined ... and more](prototype/prototype.md)
 - [User Interface](userinterface/userinterface.md)
+- [Settings](settings/settings.md) stored
 
 
