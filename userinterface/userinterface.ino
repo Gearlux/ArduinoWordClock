@@ -45,9 +45,28 @@ const int redLEDPin = 6;
 const int blueLEDPin = 10;
 
 // Color
-int red = 0;
-int green = 0;
-int blue = 255;
+#include <NeoPixelBus.h>
+const HsbColor led_colors[] = {
+     HsbColor(0, 1, 1),
+     HsbColor(0, 0.8, 1),
+     HsbColor(0.125, 0.8, 1),
+     HsbColor(0.125, 1, 1),
+     HsbColor(0.25, 1, 1),
+     HsbColor(0.25, 0.8, 1),
+     HsbColor(0.375, 0.8, 1),
+     HsbColor(0.375, 1, 1),
+     HsbColor(0.5, 1, 1),
+     HsbColor(0.5, 0.8, 1),
+     HsbColor(0.5, 0, 1),
+     HsbColor(0.625, 0.8, 1),
+     HsbColor(0.625, 1, 1),
+     HsbColor(0.75, 1, 1),
+     HsbColor(0.75, 0.8, 1),
+     HsbColor(0.875, 0.8, 1),
+     HsbColor(0.875, 1, 1)
+};
+int color_index = 0;
+const int nr_led_colors = 16;
 
 // User Interface
 enum menu_mode
@@ -58,7 +77,6 @@ enum menu_mode
     seconds_mode = 3
 };
 menu_mode current_mode = menu_mode::main_mode;
-int current_rgb = 0;
 bool it_is = true;
 
 enum brightness
@@ -151,9 +169,7 @@ void setup()
     pinMode(redLEDPin, OUTPUT);
     pinMode(blueLEDPin, OUTPUT);
 
-    analogWrite(redLEDPin, red);
-    analogWrite(greenLEDPin, green);
-    analogWrite(blueLEDPin, blue);
+    update_display();
 }
 
 void loop()
@@ -466,39 +482,32 @@ void update_display()
 {
     // Serial.println(current_brightness);
     // First determine the brightness and color of the display
+    HsbColor current_color = led_colors[color_index];
+    
     switch(current_brightness)
     {
         case automatic:
         {
             int reading = analogRead(lightPin);
-
-            // Serial.print("Sensor ");
-            // Serial.println(reading);
-            
-            int scale = 1024 / reading;
-
-            analogWrite(redLEDPin, red / scale);
-            analogWrite(greenLEDPin, green / scale);
-            analogWrite(blueLEDPin, blue / scale);
+            current_color.B = min(1.0f, reading / 1024.0f);
         } 
         break;
         case set_high:
-            analogWrite(redLEDPin, red * auto_levels[auto_high] / 255);
-            analogWrite(greenLEDPin, green * auto_levels[auto_high] / 255);
-            analogWrite(blueLEDPin, blue * auto_levels[auto_high] / 255);
+            current_color.B = auto_levels[auto_high] / 255.0f;
             break;
         case set_low:
-            analogWrite(redLEDPin, red * auto_levels[auto_low] / 255);
-            analogWrite(greenLEDPin, green * auto_levels[auto_low] / 255);
-            analogWrite(blueLEDPin, blue * auto_levels[auto_low] / 255);
+            current_color.B = auto_levels[auto_low] / 255.0f;
             break;
         default:
-            analogWrite(redLEDPin, red * (int)current_brightness / 255);
-            analogWrite(greenLEDPin, green * (int)current_brightness / 255);
-            analogWrite(blueLEDPin, blue * (int)current_brightness / 255);
+            current_color.B = current_brightness / 255.0f;
             break;
     }
 
+    RgbColor rgb_color(current_color);
+    analogWrite(redLEDPin, rgb_color.R);
+    analogWrite(greenLEDPin, rgb_color.G);
+    analogWrite(blueLEDPin, rgb_color.B);
+    
     switch (current_mode)
     {
     case main_mode:
@@ -682,29 +691,12 @@ void toggle_brightness()
     Serial.println((int)current_brightness);
 }
 
-#define OFFSET 127
 void toggle_rgb()
 {
     Serial.println("toggle_rgb");
-    blue = blue - OFFSET;
-    if (blue < 0) {
-        blue = 255;
-        green = green - OFFSET;
-        if (green < 0) {
-            green = 255;
-            red = red - OFFSET;
-            if (red < 0) {
-                red = 255;
-                green = 255;
-                blue = 255;
-            }
-        }
-    }
-    Serial.print(red);
-    Serial.print(" ");
-    Serial.print(green);
-    Serial.print(" ");
-    Serial.println(blue);
+    color_index = color_index + 1;
+    if (color_index > nr_led_colors)
+      color_index = 0;
 }
 
 void increase_brightness(brightness high_or_low)
