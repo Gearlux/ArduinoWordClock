@@ -1,0 +1,35 @@
+*Pick And Place List
+*Company=
+*Author=
+*eMail=
+*
+*Project=touchmetro_rev2
+*Date=23:43:48
+*CreatedBy=Fritzing 0.9.6b.2021-02-21.CD-175-0-8a1e0682
+*
+*
+*Coordinates in mm, always center of component
+*Origin 0/0=Lower left corner of PCB
+*Rotation in degree (0-360, math. pos.)
+*
+*No;Value;Package;X;Y;Rotation;Side;Name
+1;;THT;47.4913;-3.07288;-90;Bottom;J2
+2;;;25.2984;-36.2319;0;Bottom;Via7
+3;;;32.6136;-10.6286;0;Bottom;Via8
+4;;;3.79993;-14.5028;-90;Bottom;NEOPIXEL1
+5;;THT;39.8713;-3.07288;180;Bottom;LRD
+6;;;27.4621;-41.1729;180;Bottom;Metro Mini
+7;;;42.4113;-19.5829;90;Bottom;Part1
+8;;;21.6408;-38.6703;0;Bottom;Via5
+9;;;19.4243;-18.3129;-90;Bottom;Cap
+10;;;8.83919;-15.5054;0;Bottom;Via3
+11;220;THT;3.04128;-36.0929;-90;Bottom;R4
+12;;;51.5112;-23.4303;0;Bottom;Via6
+13;;;7.01039;-6.97103;0;Bottom;Via2
+14;;;9.44879;-35.6223;0;Bottom;Via1
+15;;THT;3.04128;-47.5229;180;Bottom;J1
+16;;;2.13359;-5.14223;0;Bottom;Via4
+17;0.1mF;100 mil [THT, electrolytic];3.04128;-24.6629;90;Bottom;C4
+18;;;11.9313;1.37212;180;Bottom;USB
+19;;;46.6344;-7.58063;0;Bottom;Via9
+20;1k;THT;28.4413;-3.07288;0;Bottom;LRD_Resistor
