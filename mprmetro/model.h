@@ -13,7 +13,6 @@
 #define DOT_CONFIG 0x10
 #define BLACKLIGHT_CONFIG 0x20
 #define SETCLOCK_CONFIG 0x40
-// #define SECONDSBAR_CONFIG 0x80
 
 #define UPDATE_INTERVAL 250 // in milli seconds
 
@@ -48,7 +47,6 @@ public:
   void toggle_seconds(); 
   void toggle_itis();
   void toggle_dots();
-  void toggle_secondsbar();
   void toggle_over();
   void toggle_twenty();
   void toggle_backlight();

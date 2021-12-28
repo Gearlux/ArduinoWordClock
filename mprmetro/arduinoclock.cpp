@@ -3,7 +3,7 @@
 
 #define NO_CPU
 
-ArduinoClock::ArduinoClock() : ref_cpu_time(0), reference_second(255) {
+ArduinoClock::ArduinoClock() : ref_cpu_time(0), reference_second(255), extra_delay(0) {
   // Set reference year to zero to initialize it
   reference.year = 0;
 }
@@ -17,20 +17,23 @@ bool ArduinoClock::updating() {
 }
 
 void ArduinoClock::loop() {
-  if (reference.year == 0) {
-    DBG_INFO_F("Reset arduino clock");
-    reference = getDateTime();
-    reference_second = reference.second;
-  }
-  if (reference_second == reference.second) {
-    reference = getDateTime();
-    if (reference_second != reference.second) {
-      ref_cpu_time = millis();
-      reference_unixtime = reference.unixtime;
-      DBG_INFO_F("Arduino clock is set %lu %d:%d.%d", ref_cpu_time, reference.hour, reference.minute, reference.second);
-      reference_second = 255;
+  #ifndef NO_CPU
+    if (reference.year == 0) {
+      DBG_INFO_F("Reset arduino clock");
+      reference = getDateTime();
+      reference_second = reference.second;
     }
-  }
+    if (reference_second == reference.second) {
+      reference = getDateTime();
+      if (reference_second != reference.second) {
+        ref_cpu_time = millis();
+        extra_delay = 0;
+        reference_unixtime = reference.unixtime;
+        DBG_INFO_F("Arduino clock is set %lu %d:%d.%d", ref_cpu_time, reference.hour, reference.minute, reference.second);
+        reference_second = 255;
+      }
+    }
+  #endif
 }
 
 TimeMS ArduinoClock::get_date_time()
@@ -70,7 +73,7 @@ TimeMS ArduinoClock::get_date_time()
       return result;
     }
     // Here we can calculate the difference
-    unsigned long diff = current_millis - ref_cpu_time;
+    unsigned long diff = current_millis + extra_delay - ref_cpu_time;
     TimeMS result = get_time(reference_unixtime + (diff / 1000L));
     result.ms = diff % 1000L;
     if (diff > MAX_DIFF && reference_second == 255) {
@@ -107,4 +110,10 @@ TimeMS ArduinoClock::get_time(unsigned long t)
   result.hour = t % 24;
 
   return result;
+}
+
+void ArduinoClock::sleep(unsigned long ms)
+{
+  delay(ms);
+  extra_delay += 2;
 }

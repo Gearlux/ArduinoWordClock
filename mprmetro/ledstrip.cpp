@@ -36,6 +36,16 @@ void LedStrip::enable_led(LedWord  word, const HsbColor &color)
   }
 }
 
+void LedStrip::updateColor(uint16_t index, const HsbColor &color, float fraction)
+{
+    RgbColor old_color = GetPixelColor(index);
+    RgbColor rgb_color(color);
+    old_color.R += fraction * rgb_color.R;
+    old_color.G += fraction * rgb_color.G;
+    old_color.B += fraction * rgb_color.B;
+    SetPixelColor(index, old_color);
+}
+
 void LedStrip::enable_led(LedWord  word, const HsbColor &color, float fraction)
 {
   if (fraction == 1.0f)
@@ -48,22 +58,12 @@ void LedStrip::enable_led(LedWord  word, const HsbColor &color, float fraction)
     int start_index = word.firstPixelY * LED_ROW + word.firstPixelX + LED_OFFSET;
     int i = 0;
     for (i = 0; i < word.length; i++) {
-      RgbColor old_color = GetPixelColor(start_index + i);
-      RgbColor rgb_color(color);
-      old_color.R += fraction * rgb_color.R;
-      old_color.G += fraction * rgb_color.G;
-      old_color.B += fraction * rgb_color.B;
-      SetPixelColor(start_index + i, old_color);
+      updateColor(start_index + i, color, fraction);
     }
   } else {
     int start_index = word.firstPixelY * LED_ROW + 10 - word.firstPixelX + LED_OFFSET;
     for (int i = 0; i < word.length; ++i) {
-      RgbColor old_color = GetPixelColor(start_index + i);
-      RgbColor rgb_color(color);
-      old_color.R += fraction * rgb_color.R;
-      old_color.G += fraction * rgb_color.G;
-      old_color.B += fraction * rgb_color.B;
-      SetPixelColor(start_index - i, old_color);
+      updateColor(start_index - i, color, fraction);
     }
   }
 }

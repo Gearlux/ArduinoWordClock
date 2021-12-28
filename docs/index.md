@@ -1,37 +1,42 @@
-## Welcome to GitHub Pages
+# NeoWordClock
 
-You can use the [editor on GitHub](https://github.com/Gearlux/NeoWordClock/edit/main/docs/index.md) to maintain and preview the content for your website in Markdown files.
+The 50x50cm NeoWordClock is mounted on the wall like a picture and is currently only available in Dutch.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+<center>
+<img src="images/mat_zwart.jpeg" width="320">
+</center>
 
-### Markdown
+The dots show the minutes be
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Unique Features
 
-```markdown
-Syntax highlighted code block
+### Coloured Letters
 
-# Header 1
-## Header 2
-### Header 3
+It is possible to change the colour of the letters and set the mood of the clock.
 
-- Bulleted
-- List
+<center>
+<video width="320" height="240" controls>
+  <source src="videos/NeoWordClock.mp4" type="video/mp4">
+</video>
+</center>
 
-1. Numbered
-2. List
+### Backlight
 
-**Bold** and _Italic_ and `Code` text
+The backlight of the clock creates the correct ambiance in your room.
 
-[Link](url) and ![Image](src)
-```
+<center>
+<img src="images/backlight.jpeg" width="320">
+</center>
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
 
-### Jekyll Themes
+### Seconds
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Gearlux/NeoWordClock/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+Seconds can be displayed as a moving letter. This turns the clock into the ultimate device in times where every second matters.
 
-### Support or Contact
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+
+## Colors
+
+Currently only available in acrylic matt black.
+
+Other colours are available and a variety of wooden fronts is also possible.

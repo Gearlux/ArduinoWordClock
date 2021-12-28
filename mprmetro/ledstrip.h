@@ -23,6 +23,7 @@ public:
   void colorWipe(uint8_t wait);
   void enable_led(LedWord  word, const HsbColor &color);
   void enable_led(LedWord  word, const HsbColor &color, float fraction);
+  void updateColor(uint16_t index, const HsbColor &color, float fraction);
 };
 
 #endif // _LEDSTRIP_H_

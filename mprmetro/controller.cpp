@@ -82,7 +82,7 @@ void Controller::check_buttons()
 {
   buttons.check();
 
-  delay(5);
+  model.clock.sleep(10);
 }
 
 void Controller::update_display()

@@ -66,7 +66,7 @@ void Model::setup()
   // clock.setDateTime(2016, 12, 9, 11, 46, 00);
 
   // Send sketch compiling time to Arduino
-  // clock.setDateTime(__DATE__, __TIME__);
+  clock.setDateTime(__DATE__, __TIME__);
   
   restore_settings();
 }
@@ -97,12 +97,6 @@ void Model::toggle_dots()
 {
   config ^= DOT_CONFIG;
   model.changed();  
-}
-
-void Model::toggle_secondsbar()
-{
-  config ^= SECONDSBAR_CONFIG;
-  model.changed();
 }
 
 void Model::toggle_over()

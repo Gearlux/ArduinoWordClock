@@ -131,7 +131,7 @@ void buttonThreeLongPressed()
       // Do nothing
       break;
     case config_mode:
-      model.toggle_secondsbar();
+      // Do nothing
       break;
   }
 

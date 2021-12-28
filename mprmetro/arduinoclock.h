@@ -13,13 +13,14 @@ struct TimeMS
     uint16_t ms;
 };
 
-class ArduinoClock: private DS3231 
+class ArduinoClock: public DS3231 
 {
 public:
   ArduinoClock();
 
   void begin();
   void loop();
+  void sleep(unsigned long ms);
   TimeMS get_date_time();
   void set_date_time(uint8_t hour, uint8_t minute, uint8_t second);
 
@@ -33,6 +34,7 @@ private:
   RTCDateTime reference;
   uint32_t reference_unixtime;
   unsigned long ref_cpu_time;
+  unsigned long extra_delay;
 };
 
 #endif // _ARDUINO_CLOCK_H_
