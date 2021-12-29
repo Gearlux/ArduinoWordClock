@@ -6,7 +6,7 @@ The 50x50cm NeoWordClock is mounted on the wall like a picture and is currently 
 <img src="images/mat_zwart.jpeg" width="320">
 </center>
 
-The dots show the minutes be
+The dots show the minutes: 'Het is 18 na twee'.
 
 ## Unique Features
 
@@ -15,7 +15,7 @@ The dots show the minutes be
 It is possible to change the colour of the letters and set the mood of the clock.
 
 <center>
-<video width="320" height="240" controls>
+<video width="320" height="240" controls autoplay loop>
   <source src="videos/NeoWordClock.mp4" type="video/mp4">
 </video>
 </center>
@@ -33,6 +33,15 @@ The backlight of the clock creates the correct ambiance in your room.
 
 Seconds can be displayed as a moving letter. This turns the clock into the ultimate device in times where every second matters.
 
+<center>
+<video width="320" height="240" controls autoplay loop>
+  <source src="videos/seconds.mp4" type="video/mp4">
+</video>
+</center>
+
+### Dialects
+
+The clock can be configured for some dutch dialects. You can switch between 'over' and 'na'. 'Twintig na' of 'tien voor half' are other possibilities.
 
 
 ## Colors
@@ -40,3 +49,7 @@ Seconds can be displayed as a moving letter. This turns the clock into the ultim
 Currently only available in acrylic matt black.
 
 Other colours are available and a variety of wooden fronts is also possible.
+
+## Manual
+
+Please consult the [online manual](main.md).
