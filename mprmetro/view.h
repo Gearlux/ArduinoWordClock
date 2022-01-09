@@ -13,7 +13,7 @@ public:
   void setup();
 
   void display_hour(const HsbColor &color, uint8_t hour, uint8_t minute, uint8_t seconds, byte config);
-  void enableMinuteDots(uint8_t minute, const HsbColor &color, byte config, float fraction);
+  void enableMinuteDots(uint8_t minute, const HsbColor &color, byte config, float up_fraction, float down_fraction);
 
   void show_bar(HsbColor color, int low, int high, bool set_low);
 
@@ -22,11 +22,13 @@ public:
   void show_debug(int seconds);
 
 private:
-  void display_five_minutes(const HsbColor &color, uint8_t fiveMinutes, const LedWord &after, byte config, bool blink, float fraction);
+  bool display_five_minutes(const HsbColor &color, uint8_t fiveMinutes, byte config, bool blink, float fraction, bool &display_after, bool &display_before, bool &display_itis, bool &display_half);
+  void display_word(const HsbColor &color, const LedWord &after, float fraction, bool display_after, bool display_before);
+  void display_half(const HsbColor &color, float fraction);
   void display_the_hour(const HsbColor &color, uint8_t hour_index, byte config, bool blink, float fraction);
-  void display_itis(const HsbColor &color, byte config, bool blink);
+  void display_itis(const HsbColor &color, float fraction);
   void display_seconds(const HsbColor &color, uint8_t seconds, byte config, float fraction);
-  void display_dots(const HsbColor &color, uint8_t minute, byte config, bool blink, float fraction);
+  void display_dots(const HsbColor &color, uint8_t minute, byte config, bool blink, float up_fraction, float down_fraction);
 
   void show_blacklight(const HsbColor &color, byte config);
 

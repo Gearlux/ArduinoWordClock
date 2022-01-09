@@ -12,6 +12,7 @@ RTCDateTime dt;
 #define DOT_CONFIG 0x10
 #define BLACKLIGHT_CONFIG 0x20
 #define SETCLOCK_CONFIG 0x40
+#define FADE_CONFIG 0x80
 
 void writeRegister8(uint8_t reg, uint8_t value)
 {
@@ -38,7 +39,7 @@ void setup() {
     clock.setDateTime(__DATE__, __TIME__);
 
     writeRegister8(0x08, (byte)0);
-    writeRegister8(0x09, (byte)( ITIS_CONFIG | TWENTY_CONFIG | DOT_CONFIG | BLACKLIGHT_CONFIG));
+    writeRegister8(0x09, (byte)( ITIS_CONFIG | TWENTY_CONFIG | DOT_CONFIG | BLACKLIGHT_CONFIG | FADE_CONFIG));
     writeRegister8(0x0A, (byte)11);
     writeRegister8(0x0B, (byte)0);
 

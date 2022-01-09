@@ -13,6 +13,7 @@
 #define DOT_CONFIG 0x10
 #define BLACKLIGHT_CONFIG 0x20
 #define SETCLOCK_CONFIG 0x40
+#define FADE_CONFIG 0x80
 
 #define UPDATE_INTERVAL 250 // in milli seconds
 
@@ -54,6 +55,7 @@ public:
   void toggle_backlight();
 
   byte get_config();
+  void set_config(byte config);
   
   // FIXME
   void changed();
@@ -62,6 +64,7 @@ public:
   void restore_settings();
 
   void toggle_brightness();
+  void toggle_fader();
   
   int get_brightness_high();
   int get_brightness_low();

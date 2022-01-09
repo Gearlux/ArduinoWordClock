@@ -53,6 +53,7 @@ public:
 
   void adjust_color(int update);
   void toggle_rgb(int update=2);
+  void toggle_fader();
 
   menu_mode mode();
   submenu_mode submode();

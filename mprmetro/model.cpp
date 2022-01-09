@@ -84,42 +84,54 @@ void Model::reset_timeout()
 void Model::toggle_seconds() 
 {
   config ^= SECONDS_CONFIG;
-  model.changed();
+  changed();
 }
 
 void Model::toggle_itis() 
 {
   config ^= ITIS_CONFIG;
-  model.changed();
+  changed();
 }
 
 void Model::toggle_dots()
 {
   config ^= DOT_CONFIG;
-  model.changed();  
+  changed();  
 }
 
 void Model::toggle_over()
 {
   config ^= OVER_CONFIG;
-  model.changed();
+  changed();
 }
 
 void Model::toggle_twenty()
 {
   config ^= TWENTY_CONFIG;
-  model.changed();
+  changed();
 }
 
 void Model::toggle_backlight()
 {
   config ^= BLACKLIGHT_CONFIG;
-  model.changed();
+  changed();
+}
+
+void Model::toggle_fader()
+{
+  config ^= FADE_CONFIG;
+  changed();
 }
 
 byte Model::get_config()
 {
   return config;
+}
+
+void Model::set_config(byte config)
+{
+  this->config = config;
+  changed();
 }
 
 void Model::changed()
@@ -198,7 +210,6 @@ void Model::toggle_brightness()
   DBG_DEBUG("Current brightness: %d", (int)current_brightness);
   model.changed();
 }
-
 
 int Model::get_brightness_high()
 {
@@ -298,9 +309,6 @@ void Model::get_display_parameters(uint8_t hour, uint8_t minute, byte config, ui
   int threshold = 4;
 
   switch(fiveMinutes) {
-  case 0:
-    display_config |= ITIS_CONFIG; 
-    break;
   case 4:
     if (config & TWENTY_CONFIG) 
       threshold = 5;

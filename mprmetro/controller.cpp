@@ -54,6 +54,10 @@ void Controller::change_hour(Model &model, int h, int min5, int m, bool reset)
   DBG_VERBOSE_F("change_hour from %d:%d.%d", dt.hour, dt.minute, dt.second);
   int hour = (int)dt.hour;
   int min = dt.minute + min5 * 5 + m;
+  if (reset) {
+    if (dt.second > 30)
+      min += 1;
+  }
   if (min > 59) {
     min = 60 - min;  
     hour += 1;
@@ -254,4 +258,14 @@ void Controller::set_mode(menu_mode menumode, submenu_mode submode)
   current_mode = menumode;
   sub_mode = submode;
   changed();
+}
+
+void Controller::toggle_fader()
+{
+  changed();
+  TimeMS dt = model.getDateTime();
+  // view.display_hour(model.compute_current_color(), dt.hour, dt.minute, dt.second, model.get_config() | SECONDS_CONFIG);
+  model.toggle_fader();
+  view.display_hour(model.compute_current_color(), dt.hour, dt.minute, dt.second, model.get_config() | SECONDS_CONFIG);
+  model.clock.sleep(500);
 }

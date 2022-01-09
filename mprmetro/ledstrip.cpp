@@ -38,12 +38,19 @@ void LedStrip::enable_led(LedWord  word, const HsbColor &color)
 
 void LedStrip::updateColor(uint16_t index, const HsbColor &color, float fraction)
 {
-    RgbColor old_color = GetPixelColor(index);
-    RgbColor rgb_color(color);
-    old_color.R += fraction * rgb_color.R;
-    old_color.G += fraction * rgb_color.G;
-    old_color.B += fraction * rgb_color.B;
-    SetPixelColor(index, old_color);
+    HsbColor old_color = HsbColor(GetPixelColor(index));
+    if (old_color.B != 0 ) {
+      // DBG_DEBUG_F("%d %d %d", (int)(old_color.H * 1000), (int)(old_color.S * 1000), (int)(old_color.B * 1000));
+      HsbColor new_color = HsbColor::LinearBlend<NeoHueBlendShortestDistance>(HsbColor(old_color), color, fraction);
+      SetPixelColor(index, new_color);
+    }
+    else {
+      HsbColor new_color(color);
+      // DBG_DEBUG_F("%d %d %d * %d", (int)(new_color.R), (int)(new_color.G), (int)(new_color.B), (int)(fraction * 1000));
+      new_color.B *= fraction;
+      // DBG_DEBUG_F("-> %d %d %d", (int)(new_color.R), (int)(new_color.G), (int)(new_color.B));
+      SetPixelColor(index, new_color);
+    }
 }
 
 void LedStrip::enable_led(LedWord  word, const HsbColor &color, float fraction)
@@ -84,11 +91,12 @@ void LedStrip::ClearTo(RgbColor color)
   NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>::ClearTo(color);
 }
 
-#define DOT4 NR_LEDS - 4
-
 void LedStrip::SetPixelColor(uint16_t indexPixel, RgbColor color)
 {
 #ifdef BOTTOM_TO_TOP
+
+#define DOT4 NR_LEDS - 4
+
   uint16_t finalPixel = LED_OFFSET + 10 * LED_ROW - (LED_ROW - 10) - indexPixel;
   if (indexPixel == DOT4)
     finalPixel = 0;

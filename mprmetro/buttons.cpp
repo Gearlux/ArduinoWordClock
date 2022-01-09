@@ -131,7 +131,7 @@ void buttonThreeLongPressed()
       // Do nothing
       break;
     case config_mode:
-      // Do nothing
+      controller.toggle_fader();
       break;
   }
 
