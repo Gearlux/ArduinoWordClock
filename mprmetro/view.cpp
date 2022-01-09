@@ -6,8 +6,9 @@
 #define FADE_STEPS 25
 #define STEP_SIZE 1.1
 #define RATIO 5
+#define FRACTION 1.1
 
-View::View(): counter(-1), seconds_counter(-1) {
+View::View(): counter(-1), seconds_counter(-1), last_change(0) {
   previous.hour = 255;
   previous.minute = 255;
   previous.second = 255;
@@ -27,10 +28,11 @@ void View::setup()
 
 void View::display_hour(const HsbColor &color, uint8_t hour, uint8_t minute, uint8_t seconds, byte config)
 {
-  if (config == previous_config) {
+  // DBG_DEBUG_F("lastpress %d", (int)controller.lastpress() != last_change);
+  if (config == previous_config && controller.lastpress() == last_change) {
     if (config & SECONDS_CONFIG) {
       if (previous.hour == hour && previous.minute == minute && previous.second == seconds)
-        return;    
+        return;
 
       if (previous.second != seconds) {
         if (seconds_counter < 0)
@@ -45,11 +47,11 @@ void View::display_hour(const HsbColor &color, uint8_t hour, uint8_t minute, uin
     }
     else {
       if (previous.hour == hour && previous.minute == minute)
-        return;    
+        return;
     }
 
     if (previous.minute != minute) {
-      if (counter < 0) 
+      if (counter < 0)
         counter = FADE_STEPS * RATIO;
       else {
         counter--;
@@ -61,7 +63,7 @@ void View::display_hour(const HsbColor &color, uint8_t hour, uint8_t minute, uin
     }
   }
   else {
-    previous_config = config;   
+    previous_config = config;
 
     previous.hour = hour;
     previous.minute = minute;
@@ -71,9 +73,11 @@ void View::display_hour(const HsbColor &color, uint8_t hour, uint8_t minute, uin
     counter = -1;
   }
 
+  last_change = controller.lastpress();
+
   DBG_TRACE_F("display hour %d:%d.%d %d", hour, minute, seconds, config);
   // DBG_DEBUG_F("%d %d %d", seconds, previous.second, seconds_counter);
-  
+
   strip.ClearTo(RgbColor(0, 0, 0));
 
   uint8_t hour_index;
@@ -83,7 +87,7 @@ void View::display_hour(const HsbColor &color, uint8_t hour, uint8_t minute, uin
   uint8_t prev_hour_index;
   uint8_t prev_fiveMinutes;
   LedWord prev_after;
-  
+
   model.get_display_parameters(hour, minute, config, hour_index, fiveMinutes, after, config);
 
   if (counter >= 0)
@@ -92,30 +96,34 @@ void View::display_hour(const HsbColor &color, uint8_t hour, uint8_t minute, uin
   bool blink =  (millis() / BLINK_INTERVAL) % 2 == 0;
 
   // float fraction = pow(STEP_SIZE, FADE_STEPS - (counter / RATIO) ) / pow(STEP_SIZE, FADE_STEPS);
-  float fraction = ( (float)FADE_STEPS - (float)((float)counter / (float)RATIO) ) / (float)FADE_STEPS;
-  float fraction2 = pow(STEP_SIZE, FADE_STEPS - seconds_counter) / pow(STEP_SIZE, FADE_STEPS);
-  
+  // float fraction = pow( (float)FADE_STEPS - (float)((float)counter / (float)RATIO) ) / (float)FADE_STEPS;
+  float fraction;
+  if (counter >= 0)
+    fraction = pow( STEP_SIZE * FRACTION, FADE_STEPS - (float)counter / RATIO) / pow(STEP_SIZE * FRACTION, FADE_STEPS);
+  float fraction2 = 1;
+  if (seconds_counter >= 0)
+    fraction2 = pow(STEP_SIZE, FADE_STEPS - seconds_counter) / pow(STEP_SIZE, FADE_STEPS);
+
   if (counter < 0 || prev_fiveMinutes == fiveMinutes)
     display_five_minutes(color, fiveMinutes, after, config, blink, 1.0);
   else {
-      display_five_minutes(color, prev_fiveMinutes, prev_after, config, blink, 1.0-fraction);
-      display_five_minutes(color, fiveMinutes, after, config, blink, fraction);
+    display_five_minutes(color, prev_fiveMinutes, prev_after, config, blink, 1.0 - fraction);
+    display_five_minutes(color, fiveMinutes, after, config, blink, fraction);
   }
-  
+
   display_itis(color, config, blink);
 
   if (counter < 0 || prev_hour_index == hour_index)
     display_the_hour(color, hour_index, config, blink, 1.0f);
   else {
-    display_the_hour(color, prev_hour_index, config, blink, 1.0-fraction);
+    display_the_hour(color, prev_hour_index, config, blink, 1.0 - fraction);
     display_the_hour(color, hour_index, config, blink, fraction);
   }
 
-  if (counter < 0 || previous.minute == minute) 
+  if (counter < 0 || previous.minute == minute)
     display_dots(color, minute, config, blink, 1.0);
   else {
-    DBG_DEBUG_F("%d", (int)(fraction * 10000));
-    display_dots(color, previous.minute, config, blink, 1.0-fraction);
+    DBG_TRACE_F("shaded %d", (int)(fraction * 10000));
     display_dots(color, minute, config, blink, fraction);
   }
 
@@ -127,15 +135,15 @@ void View::display_hour(const HsbColor &color, uint8_t hour, uint8_t minute, uin
     else {
       uint8_t seconds_x, seconds_y;
       uint8_t prev_seconds_x, prev_seconds_y;
-      
-      get_seconds_location(seconds, seconds_x, seconds_y);  
-      get_seconds_location(previous.second, seconds_x, seconds_y);  
+
+      get_seconds_location(seconds, seconds_x, seconds_y);
+      get_seconds_location(previous.second, prev_seconds_x, prev_seconds_y);
 
       if (seconds_x == prev_seconds_x && seconds_y == prev_seconds_y) {
         display_seconds(color, seconds, config, 1.0);
       } else {
         // DBG_DEBUG_F("%d s", (int)(fraction2 * 10000));
-        display_seconds(color, previous.second, config, 1.0-fraction2);
+        display_seconds(color, previous.second, config, 1.0 - fraction2);
         display_seconds(color, seconds, config, fraction2);
       }
     }
@@ -192,8 +200,8 @@ void View::display_five_minutes(const HsbColor &color, uint8_t fiveMinutes, cons
         if (config & TWENTY_CONFIG) {
           strip.enable_led(MINUTE_TWENTY, color, fraction);
           strip.enable_led(INFIX_BEFORE, color, fraction);
-        } 
-        else {    
+        }
+        else {
           strip.enable_led(MINUTE_TEN, color, fraction);
           strip.enable_led(after, color, fraction);
           strip.enable_led(MINUTE_HALF, color, fraction);
@@ -219,7 +227,7 @@ void View::display_dots(const HsbColor &color, uint8_t minute, byte config, bool
 {
   if (config & SETCLOCK_CONFIG)
     config |= DOT_CONFIG;
-  if (!(config & SETCLOCK_CONFIG) || (controller.submode() != clock_min) || blink) 
+  if (!(config & SETCLOCK_CONFIG) || (controller.submode() != clock_min) || blink)
     enableMinuteDots(minute, color, config, fraction);
 }
 
@@ -235,7 +243,7 @@ void View::get_seconds_location(uint8_t seconds, uint8_t &x, uint8_t &y)
     y = where;
   } else if (seconds < 36) {
     int where = min(9, seconds - 25);
-    x = 10 -where;
+    x = 10 - where;
     y = 9;
   } else if (seconds < 56) {
     int where = (seconds - 36) / 2;
@@ -254,7 +262,7 @@ void View::display_seconds(const HsbColor &color, uint8_t seconds, byte config, 
   second_color.B = min(1, second_color.B * 2);
   uint8_t x, y;
   get_seconds_location(seconds, x, y);
-  strip.enable_led(LedWord(x,y,1), second_color, fraction);
+  strip.enable_led(LedWord(x, y, 1), second_color, fraction);
 }
 
 void View::display_the_hour(const HsbColor &color, uint8_t hour_index, byte config, bool blink, float fraction)
@@ -283,7 +291,7 @@ void View::display_itis(const HsbColor &color, byte config, bool blink)
     strip.enable_led(PREFIX_IT, color);
     strip.enable_led(PREFIX_IS, color);
   }
-  if ( (config & SETCLOCK_CONFIG) && blink ){
+  if ( (config & SETCLOCK_CONFIG) && blink ) {
     strip.enable_led(PREFIX_IT, HsbColor(0.125, 0.5, 1));
     strip.enable_led(PREFIX_IS, HsbColor(0.625, 0.5, 1));
   }
@@ -292,54 +300,69 @@ void View::display_itis(const HsbColor &color, byte config, bool blink)
 void View::show_blacklight(const HsbColor &color, byte config)
 {
   if (config & BLACKLIGHT_CONFIG) {
-    strip.enable_led(LedWord(11 + (LED_ROW-11)/2, 0, (LED_ROW-11) / 2), color);
-    for (int r=1;r<8;++r) {
-      strip.enable_led(LedWord(11 + r * LED_ROW, 0, LED_ROW-11), color);
-    } 
-    strip.enable_led(LedWord(11 + 8 * LED_ROW, 0, (LED_ROW-11) / 2), color);
+    strip.enable_led(LedWord(11 + (LED_ROW - 11) / 2, 0, (LED_ROW - 11) / 2), color);
+    for (int r = 1; r < 8; ++r) {
+      strip.enable_led(LedWord(11 + r * LED_ROW, 0, LED_ROW - 11), color);
+    }
+    strip.enable_led(LedWord(11 + 8 * LED_ROW, 0, (LED_ROW - 11) / 2), color);
   }
 }
 
+
 void View::enableMinuteDots(uint8_t minute, const HsbColor &color, byte config, float fraction)
 {
-   uint8_t minuteDots = minute % 5;
-   if (config & DOT_CONFIG) {
-      //Serial.print("enableMinuteDots ");
-      //Serial.println(minuteDots);
-      if (minuteDots > 0) {
-        if (fraction == 1.0) 
-          strip.SetPixelColor(NR_LEDS-3, color);
-        else 
-        {
-          strip.updateColor(NR_LEDS-3, color, fraction);
-        }
+  if (config & DOT_CONFIG) {
+    uint8_t minuteDots = minute % 5;
+    uint8_t previousMinuteDots = previous.minute % 5;
+
+    //Serial.print("enableMinuteDots ");
+    //Serial.println(minuteDots);
+    if (minuteDots == 0) {
+      if (fraction != 1.0) {
+        strip.updateColor(NR_LEDS - 1, color, 1.0 - fraction);
+        strip.updateColor(NR_LEDS - 2, color, 1.0 - fraction);
+        strip.updateColor(NR_LEDS - 3, color, 1.0 - fraction);
+        strip.updateColor(NR_LEDS - 4, color, 1.0 - fraction);
       }
-      if (minuteDots > 1) 
-        if (fraction == 1.0) 
-          strip.SetPixelColor(NR_LEDS-2, color);
-        else 
-        {
-          strip.updateColor(NR_LEDS-2, color, fraction);
-        }
-      if (minuteDots > 2) 
-        if (fraction == 1.0) 
-          strip.SetPixelColor(NR_LEDS-1, color);
-        else 
-        {
-          strip.updateColor(NR_LEDS-1, color, fraction);
-        }
-      if (minuteDots > 3) 
-        if (fraction == 1.0) 
-          strip.SetPixelColor(NR_LEDS-4, color);
-        else 
-        {
-          strip.updateColor(NR_LEDS-4, color, fraction);
-        }
-   }  
+    }
+    if (minuteDots > 0) {
+      if (fraction == 1.0 || minuteDots > 1)
+        strip.SetPixelColor(NR_LEDS - 3, color);
+      else
+      {
+        strip.updateColor(NR_LEDS - 3, color, fraction);
+      }
+    }
+    if (minuteDots > 1) {
+      if (fraction == 1.0 || minuteDots > 2)
+        strip.SetPixelColor(NR_LEDS - 2, color);
+      else
+      {
+        strip.updateColor(NR_LEDS - 2, color, fraction);
+      }
+    }
+    if (minuteDots > 2) {
+      if (fraction == 1.0 || minuteDots > 3)
+        strip.SetPixelColor(NR_LEDS - 1, color);
+      else
+      {
+        strip.updateColor(NR_LEDS - 1, color, fraction);
+      }
+    }
+    if (minuteDots > 3) {
+      if (fraction == 1.0)
+        strip.SetPixelColor(NR_LEDS - 4, color);
+      else
+      {
+        strip.updateColor(NR_LEDS - 4, color, fraction);
+      }
+    }
+  }
 }
 
 void View::show_bar(HsbColor color, int low, int high, bool set_low)
 {
+  last_change = millis();
   bool blink =  ((millis() / BLINK_INTERVAL) % 2) == 0;
 
   view.strip.ClearTo(RgbColor(0, 0, 0));
@@ -347,44 +370,46 @@ void View::show_bar(HsbColor color, int low, int high, bool set_low)
   int brightness_high = model.get_brightness_high();
   if (!set_low or blink) {
     color.B = model.compute_brightness(brightness_low);
-    view.strip.enable_led(LedWord(0, brightness_low, 10-brightness_low), color);
-  }  
-  for(int i=brightness_low+1; i<brightness_high; ++i) {
+    view.strip.enable_led(LedWord(0, brightness_low, 10 - brightness_low), color);
+  }
+  for (int i = brightness_low + 1; i < brightness_high; ++i) {
     color.B = model.compute_brightness(i);
-    view.strip.enable_led(LedWord(0, i, 10-i), color);
+    view.strip.enable_led(LedWord(0, i, 10 - i), color);
   }
   if (set_low or blink) {
     color.B = model.compute_brightness(brightness_high);
-    view.strip.enable_led(LedWord(0, brightness_high, 10-brightness_high), color);
-  }  
+    view.strip.enable_led(LedWord(0, brightness_high, 10 - brightness_high), color);
+  }
   view.strip.Show();
 }
 
 void View::show_hue(const HsbColor &color, submenu_mode sub_mode)
 {
+  last_change = millis();
+
   bool blink =  ((millis() / BLINK_INTERVAL) % 2) == 0;
   view.strip.ClearTo(RgbColor(0, 0, 0));
-  for(int i=0; i<NR_LED_COLORS; ++i) {
-    view.strip.enable_led(LedWord(i,0,1), HsbColor((float)i / NR_LED_COLORS, 1, color.B));  
-    view.strip.enable_led(LedWord(i,1,1), HsbColor((float)i / NR_LED_COLORS, 1, color.B));  
+  for (int i = 0; i < NR_LED_COLORS; ++i) {
+    view.strip.enable_led(LedWord(i, 0, 1), HsbColor((float)i / NR_LED_COLORS, 1, color.B));
+    view.strip.enable_led(LedWord(i, 1, 1), HsbColor((float)i / NR_LED_COLORS, 1, color.B));
 
-    view.strip.enable_led(LedWord(i,5,1), HsbColor(color.H, (float)i / (NR_LED_COLORS-1), color.B));  
-    view.strip.enable_led(LedWord(i,6,1), HsbColor(color.H, (float)i / (NR_LED_COLORS-1), color.B));  
+    view.strip.enable_led(LedWord(i, 5, 1), HsbColor(color.H, (float)i / (NR_LED_COLORS - 1), color.B));
+    view.strip.enable_led(LedWord(i, 6, 1), HsbColor(color.H, (float)i / (NR_LED_COLORS - 1), color.B));
   }
   if (sub_mode != set_hue  || blink) {
     int hue = round(color.H * NR_LED_COLORS);
-    view.strip.enable_led(LedWord(hue,2,1), HsbColor((float)hue / NR_LED_COLORS, 1, color.B));  
-    view.strip.enable_led(LedWord(hue,3,1), HsbColor((float)hue / NR_LED_COLORS, 1, color.B));  
+    view.strip.enable_led(LedWord(hue, 2, 1), HsbColor((float)hue / NR_LED_COLORS, 1, color.B));
+    view.strip.enable_led(LedWord(hue, 3, 1), HsbColor((float)hue / NR_LED_COLORS, 1, color.B));
   }
   if (sub_mode != set_sat || blink) {
-    int sat = round(color.S * (NR_LED_COLORS-1));
-    view.strip.enable_led(LedWord(sat,7,1), HsbColor(color.H, (float)sat / (NR_LED_COLORS-1), color.B));  
-    view.strip.enable_led(LedWord(sat,8,1), HsbColor(color.H, (float)sat / (NR_LED_COLORS-1), color.B));  
+    int sat = round(color.S * (NR_LED_COLORS - 1));
+    view.strip.enable_led(LedWord(sat, 7, 1), HsbColor(color.H, (float)sat / (NR_LED_COLORS - 1), color.B));
+    view.strip.enable_led(LedWord(sat, 8, 1), HsbColor(color.H, (float)sat / (NR_LED_COLORS - 1), color.B));
   }
   HsbColor currentcolor = color;
   int brightness_low = model.get_brightness_low();
   int brightness_high = model.get_brightness_high();
-  for(int i=brightness_low; i<=brightness_high; ++i) {
+  for (int i = brightness_low; i <= brightness_high; ++i) {
     currentcolor.B = pow(step, i) / 255.0f;
     view.strip.enable_led(LedWord(i, 9, 1), currentcolor);
   }
@@ -393,32 +418,36 @@ void View::show_hue(const HsbColor &color, submenu_mode sub_mode)
 
 void View::show_happiness(const HsbColor &color)
 {
+  last_change = millis();
+
   bool gert =  ((millis() / 2000) % 4) == 0;
   view.strip.ClearTo(RgbColor(0, 0, 0));
 
   if (gert) {
-      view.strip.enable_led(LedWord(3,0,1), color);
-      view.strip.enable_led(LedWord(6,0,1), color);
-      view.strip.enable_led(LedWord(4,1,2), color);
-      view.strip.enable_led(LedWord(7,2,2), color);
-      view.strip.enable_led(LedWord(10,4,1), color);
-      view.strip.enable_led(LedWord(5,7,1), color);
-      view.strip.enable_led(LedWord(6,9,2), color);
+    view.strip.enable_led(LedWord(3, 0, 1), color);
+    view.strip.enable_led(LedWord(6, 0, 1), color);
+    view.strip.enable_led(LedWord(4, 1, 2), color);
+    view.strip.enable_led(LedWord(7, 2, 2), color);
+    view.strip.enable_led(LedWord(10, 4, 1), color);
+    view.strip.enable_led(LedWord(5, 7, 1), color);
+    view.strip.enable_led(LedWord(6, 9, 2), color);
   } else {
-      view.strip.enable_led(LedWord(4,3,3), color);
-      view.strip.enable_led(LedWord(4,4,3), color);
-      view.strip.enable_led(LedWord(4,5,3), color);    
+    view.strip.enable_led(LedWord(4, 3, 3), color);
+    view.strip.enable_led(LedWord(4, 4, 3), color);
+    view.strip.enable_led(LedWord(4, 5, 3), color);
   }
-  
+
   view.strip.Show();
 }
 
 void View::show_debug(int seconds) {
+  last_change = millis();
+
   HsbColor color(0, 0, 1);
   int show = seconds % 14;
   view.strip.ClearTo(RgbColor(0, 0, 0));
   for (uint16_t i = 0; i < view.strip.PixelCount(); i++) {
-    if ( (i % 14) == show) 
+    if ( (i % 14) == show)
       view.strip.SetPixelColor(i, color);
   }
   view.strip.Show();

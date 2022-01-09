@@ -66,7 +66,7 @@ void Model::setup()
   // clock.setDateTime(2016, 12, 9, 11, 46, 00);
 
   // Send sketch compiling time to Arduino
-  clock.setDateTime(__DATE__, __TIME__);
+  // clock.setDateTime(__DATE__, __TIME__);
   
   restore_settings();
 }
@@ -128,6 +128,11 @@ void Model::changed()
   last_change = millis();  
 }
 
+unsigned long Model::lastchange()
+{
+  return last_change;
+}
+
 void Model::store_settings()
 {
   DBG_INFO_F("store_settings");
@@ -154,10 +159,7 @@ void Model::restore_settings()
   brightness_high = max(1,min(MAX_BRIGHTNESS, readRegister8(0x0A)));
   brightness_low = max(0,min(brightness_high-1, readRegister8(0x0B)));
   byte bmb = readRegister8(0x0C);
-  if (bmb == 0)
-    current_brightness = automatic;
-  else
-    current_brightness = static_cast<brightness>(bmb);
+  current_brightness = static_cast<brightness>(bmb);
   int sat = min(NR_LED_COLORS-1, readRegister8(0x0D));
 
   DBG_INFO("hue: %d config: %d brightness_high: %d low: %d current: %d sat: %d", hue, config, brightness_high, brightness_low, bmb, sat);
@@ -250,10 +252,10 @@ float Model::compute_current_brightness()
       }
       break;
     case high:
-      result = pow(step, brightness_high) / 255.0f; // auto_levels[auto_high] / 255.0f;
+      result = pow(step, brightness_high + OFFSET) / 255.0f; // auto_levels[auto_high] / 255.0f;
       break;
     case low:
-      result = pow(step, brightness_low) / 255.0f; // auto_levels[auto_low] / 255.0f;
+      result = pow(step, brightness_low + OFFSET) / 255.0f; // auto_levels[auto_low] / 255.0f;
       break;
   }
 
@@ -262,14 +264,15 @@ float Model::compute_current_brightness()
 
 HsbColor Model::adjust_color(int update, bool sat) 
 {
+  DBG_DEBUG_F("adjust_color update:%d saturation: %d", update, (int)sat);
   if (sat) {
-    int sat = round(current_color.S * (NR_LED_COLORS-1));
+    float sat = round(current_color.S * (NR_LED_COLORS-1));
     sat = sat + update;
     sat = min(NR_LED_COLORS-1,max(0, sat));
     current_color.S = sat / (NR_LED_COLORS-1.0f);
   }
   else {
-    int hue = round(current_color.H * NR_LED_COLORS);
+    float hue = round(current_color.H * NR_LED_COLORS);
     hue = hue + update;
     if (abs(update) == 1) {
       hue = min(NR_LED_COLORS-1,max(0,hue));

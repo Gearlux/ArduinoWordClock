@@ -210,16 +210,20 @@ void Controller::change_brightness(int adjust)
   if (sub_mode == set_low) {
     model.set_brightness_low(model.get_brightness_low() + adjust);
   }
+  changed();
 }
 
 void Controller::adjust_color(int adjust)
 {
-  model.adjust_color(-1, sub_mode == set_sat);
+  DBG_DEBUG_F("adjust_color amount=%d saturation=%d", adjust, (int)(sub_mode == set_sat));
+  model.adjust_color(adjust, sub_mode == set_sat);
+  changed();
 }
 
 void Controller::toggle_rgb(int update)
 {
   model.adjust_color(update, false);
+  changed();
 }
 
 menu_mode Controller::mode()
@@ -230,6 +234,11 @@ menu_mode Controller::mode()
 submenu_mode Controller::submode()
 {
   return sub_mode;
+}
+
+unsigned long Controller::lastpress()
+{
+  return max(last_press, model.lastchange());
 }
 
 void Controller::set_mode(menu_mode menumode)

@@ -40,6 +40,7 @@ public:
   int counter;
   int seconds_counter;
   byte previous_config;
+  unsigned long last_change;
 };
 
 #endif // _VIEW_H_

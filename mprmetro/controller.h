@@ -56,6 +56,7 @@ public:
 
   menu_mode mode();
   submenu_mode submode();
+  unsigned long lastpress();
   void set_mode(menu_mode menumode);
   void set_mode(menu_mode menumode, submenu_mode submode);
 

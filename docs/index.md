@@ -44,12 +44,18 @@ Seconds can be displayed as a moving letter. This turns the clock into the ultim
 The clock can be configured for some dutch dialects. You can switch between 'over' and 'na'. 'Twintig na' of 'tien voor half' are other possibilities.
 
 
+## Manual
+
+Please consult the [online manual](main.md).
+
 ## Colors
 
 Currently only available in acrylic matt black.
 
 Other colours are available and a variety of wooden fronts is also possible.
 
-## Manual
+### Disclaimer
 
-Please consult the [online manual](main.md).
+This is a hobby project. The clock is not commercially available.
+If something in the repositorie violates a license, let me know so I can remove it.
+

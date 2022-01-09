@@ -1,19 +1,17 @@
-// include the library code:
-#include <LiquidCrystal_74HC595.h>
-
-// - Original code from the tutorial
-// initialize the library with the numbers of the interface pins
-// LiquidCrystal lcd(7, 8, 9, 10, 11, 12);
-//
-// - New code to support LiquidCrystal with 74HC595
-LiquidCrystal_74HC595 lcd(11, 13, 12, 1, 3, 4, 5, 6, 7);
-
 // Clock
 #include <Wire.h>
 #include <DS3231.h>
 
 DS3231 clock;
 RTCDateTime dt;
+
+#define ITIS_CONFIG 0x01
+#define TWENTY_CONFIG 0x02
+#define OVER_CONFIG 0x04
+#define SECONDS_CONFIG 0x08
+#define DOT_CONFIG 0x10
+#define BLACKLIGHT_CONFIG 0x20
+#define SETCLOCK_CONFIG 0x40
 
 void writeRegister8(uint8_t reg, uint8_t value)
 {
@@ -31,9 +29,6 @@ void writeRegister8(uint8_t reg, uint8_t value)
 void setup() {
     Serial.begin(9600);
 
-    // set up the LCD's number of columns and rows:
-    lcd.begin(16, 2);
-
     Serial.println("Initialize RTC module");
 
     // Initialize DS3231
@@ -43,16 +38,13 @@ void setup() {
     clock.setDateTime(__DATE__, __TIME__);
 
     writeRegister8(0x08, (byte)0);
-    writeRegister8(0x09, (byte)true);
-    writeRegister8(0x0A, (byte)3);
-    writeRegister8(0x0B, (byte)15);
+    writeRegister8(0x09, (byte)( ITIS_CONFIG | TWENTY_CONFIG | DOT_CONFIG | BLACKLIGHT_CONFIG));
+    writeRegister8(0x0A, (byte)11);
+    writeRegister8(0x0B, (byte)0);
 
     writeRegister8(0x0C, (byte)0);
 
-    lcd.setCursor(0,0);
-    lcd.print("Time set");
-    lcd.setCursor(0, 1);
-    lcd.print("Defaults set");
+    Serial.println("All settings stored");
 }
 
 void loop() {

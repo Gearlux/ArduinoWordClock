@@ -21,6 +21,9 @@ void setup()
   model.setup();
   view.setup();
 
+    // DBG_DEBUG_F("%d %d %d", seconds, previous.second, seconds_counter);
+  TimeMS current_time = model.getDateTime();
+  DBG_DEBUG_F("Hour %d:%d.%d", current_time.hour, current_time.minute, current_time.second);
   DBG_INFO("Initialization done");
 }
 

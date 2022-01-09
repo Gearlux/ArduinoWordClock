@@ -74,9 +74,9 @@ void buttonTwoClicked()
       break;
     case rgb_mode:
       if (controller.submode() == set_hue)
-          controller.set_mode(brightness_mode, set_sat);
+          controller.set_mode(rgb_mode, set_sat);
       else
-          controller.set_mode(brightness_mode, set_hue);
+          controller.set_mode(rgb_mode, set_hue);
       break;
   }
 }

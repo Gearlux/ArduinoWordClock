@@ -18,9 +18,9 @@
 
 enum brightness
 {
-  high,
-  low,
-  automatic
+  high = 0,
+  low = 1,
+  automatic = 2
 };
 
 // Photocell
@@ -30,7 +30,8 @@ enum brightness
 // const float step = exp( log(255) / 10);
 // #define step 1.7404198104793391
 // const float step = exp( log(255) / 9);
-#define step 1.8509443151142613
+#define OFFSET 2
+#define step 1.6549176203689566
 #define MAX_BRIGHTNESS 9
 
 class Model {
@@ -41,8 +42,9 @@ public:
   void setup();
 
   bool timed_out();
-  
   void reset_timeout();
+
+  unsigned long lastchange();
   
   void toggle_seconds(); 
   void toggle_itis();

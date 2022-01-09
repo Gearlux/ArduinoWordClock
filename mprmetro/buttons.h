@@ -1,6 +1,8 @@
 #ifndef _BUTTONS_H_
 #define _BUTTONS_H_
 
+#define ACE
+
 #define BUTTON_ONE_PIN 2
 #define BUTTON_TWO_PIN 0
 #define BUTTON_THREE_PIN 4

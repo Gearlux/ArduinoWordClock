@@ -23,13 +23,13 @@ void LedStrip::colorWipe(uint8_t wait) {
 void LedStrip::enable_led(LedWord  word, const HsbColor &color)
 {
   if (word.firstPixelY % 2 == 0) {
-    int start_index = word.firstPixelY * LED_ROW + word.firstPixelX + LED_OFFSET;
+    int start_index = word.firstPixelY * LED_ROW + word.firstPixelX;
     int i = 0;
     for (i = 0; i < word.length; i++) {
       SetPixelColor(start_index + i, color);
     }
   } else {
-    int start_index = word.firstPixelY * LED_ROW + 10 - word.firstPixelX + LED_OFFSET;
+    int start_index = word.firstPixelY * LED_ROW + 10 - word.firstPixelX;
     for (int i = 0; i < word.length; ++i) {
       SetPixelColor(start_index - i, color);
     }
@@ -55,15 +55,53 @@ void LedStrip::enable_led(LedWord  word, const HsbColor &color, float fraction)
   }
     
   if (word.firstPixelY % 2 == 0) {
-    int start_index = word.firstPixelY * LED_ROW + word.firstPixelX + LED_OFFSET;
+    int start_index = word.firstPixelY * LED_ROW + word.firstPixelX;
     int i = 0;
     for (i = 0; i < word.length; i++) {
       updateColor(start_index + i, color, fraction);
     }
   } else {
-    int start_index = word.firstPixelY * LED_ROW + 10 - word.firstPixelX + LED_OFFSET;
+    int start_index = word.firstPixelY * LED_ROW + 10 - word.firstPixelX;
     for (int i = 0; i < word.length; ++i) {
       updateColor(start_index - i, color, fraction);
     }
   }
+}
+
+// Delegates
+void LedStrip::Begin()
+{
+  NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>::Begin();
+}
+
+void LedStrip::Show()
+{
+  NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>::Show();
+}
+
+void LedStrip::ClearTo(RgbColor color)
+{
+  NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>::ClearTo(color);
+}
+
+#define DOT4 NR_LEDS - 4
+
+void LedStrip::SetPixelColor(uint16_t indexPixel, RgbColor color)
+{
+#ifdef BOTTOM_TO_TOP
+  uint16_t finalPixel = LED_OFFSET + 10 * LED_ROW - (LED_ROW - 10) - indexPixel;
+  if (indexPixel == DOT4)
+    finalPixel = 0;
+  else if (indexPixel > DOT4)
+    finalPixel = indexPixel -1;
+  // DBG_DEBUG_F("%d -> %d", indexPixel, finalPixel);
+  NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>::SetPixelColor(finalPixel, color);
+#else
+  NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>::SetPixelColor(indexPixel, color);
+#endif
+}
+
+uint16_t LedStrip::PixelCount() const
+{
+  return NeoPixelBus<NeoGrbFeature, Neo800KbpsMethod>::PixelCount();
 }
