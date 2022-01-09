@@ -43,7 +43,7 @@ Seconds can be displayed as a moving letter. This turns the clock into the ultim
 
 <center>
 <video width="320" height="240" controls autoplay loop>
-  <source src="videos/seconds.mp4" type="video/mp4">
+  <source src="videos/Seconds.mp4" type="video/mp4">
 </video>
 </center>
 
