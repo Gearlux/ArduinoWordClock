@@ -18,7 +18,7 @@ this involved a lot of soldering and wires.
 More research led to the [QlockTwo_DIY](https://github.com/jolau/QlockTwo_DIY) github project.
 These seemed the most promising project, but I was confused by the schematics
 
-<img src="https://raw.githubusercontent.com/jolau/QlockTwo_DIY/master/schematics/QlockTwo_Wemos_v0.png" width="256" height="256">
+<img src="https://raw.githubusercontent.com/jolau/QlockTwo_DIY/master/schematics/QlockTwo_Wemos_schem.png" width="256" height="256">
 
 Not knowing anything about Arduino and electronics, I decided to buy the [ELEGOO UNO R3 Super Starter kit](https://www.elegoo.com/collections/uno-r3-starter-kits/products/elegoo-uno-project-super-starter-kit). Not because it was the best, but it was the cheapest kit which was directly available.
 
